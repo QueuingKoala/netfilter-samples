@@ -13,7 +13,7 @@
 :OUTPUT ACCEPT
 :POSTROUTING ACCEPT
 -A POSTROUTING -o if_wan -j MASQUERADE
-# These samples show how to do DNAT into your LAN, aka port-fowarding:
+# These samples show how to do DNAT into your LAN, aka port-forwarding:
 #-A PREROUTING -i if_wan -p tcp --dport 80 -j DNAT --to 192.168.7.101
 #-A PREROUTING -i if_wan -p tcp --dport 443 -j DNAT --to 192.168.7.101:9090
 #-A PREROUTING -i if_wan -p udp --dport 123 -j DNAT --to 192.168.7.200
