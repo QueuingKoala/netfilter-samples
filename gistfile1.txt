@@ -1,0 +1,32 @@
+# A fairly basic and somewhat extensible router core ruleset
+# Do not use unless you understand this example as
+# modification for your usage may be required.
+# Assumptions:
+#  * 192.168.7.0/24 is your LAN, connected to if_lan
+#  * if_wan is your uplink, with a dynamic public IP
+# Note: in particular, no local ports are opened, including ssh.
+#   Add whatever remote-access you need to prevent lockouts if this
+#   is not a console-accessible box. You have been warned.
+*nat
+:PREROUTING ACCEPT
+:INPUT ACCEPT
+:OUTPUT ACCEPT
+:POSTROUTING ACCEPT
+-A POSTROUTING -o if_wan -j MASQUERADE
+# These samples show how to do DNAT into your LAN, aka port-fowarding:
+#-A PREROUTING -i if_wan -p tcp --dport 80 -j DNAT --to 192.168.7.101
+#-A PREROUTING -i if_wan -p tcp --dport 443 -j DNAT --to 192.168.7.101:9090
+#-A PREROUTING -i if_wan -p udp --dport 123 -j DNAT --to 192.168.7.200
+#-A PREROUTING -i if_wan -p ipv6 -j DNAT --to 192.168.7.50
+COMMIT
+*filter
+:INPUT DROP
+:FORWARD DROP
+:OUTPUT ACCEPT
+-A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+-A FORWARD -i if_lan -s 192.168.7/24 -o if_wan -j ACCEPT
+# This next rule allows any traffic that has been DNAT'd into the LAN:
+-A FORWARD -m conntrack --ctstate DNAT -j ACCEPT
+-A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -i lo+ -s 127/8 -j ACCEPT
+COMMIT
