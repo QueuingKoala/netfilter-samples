@@ -7,6 +7,11 @@
 # Note: in particular, no local ports are opened, including ssh.
 #   Add whatever remote-access you need to prevent lockouts if this
 #   is not a console-accessible box. You have been warned.
+
+# This ruleset is in iptables-save(8) syntax. This means you can run
+# this file as-is (or with your own modifications) through
+# iptables-restore(8) to load them.
+
 *nat
 :PREROUTING ACCEPT
 :INPUT ACCEPT
