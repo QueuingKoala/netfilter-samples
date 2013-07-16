@@ -1,0 +1,37 @@
+# A fairly basic single-host ruleset
+
+# Do not use unless you understand this example as
+# modification for your usage may be required.
+
+# Note: in particular, no local ports are opened, including ssh.
+#   Add whatever remote-access you need to prevent lockouts if this
+#   is not a console-accessible box. You have been warned.
+
+# This ruleset is in iptables-save(8) syntax. This means you can run
+# this file as-is (or with your own modifications) through
+# iptables-restore(8) to load them.
+
+*filter
+:INPUT DROP
+:FORWARD DROP
+:OUTPUT ACCEPT
+-A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -i lo+ -s 127/8 -j ACCEPT
+
+# The following commented rules demonstrate how to open ports for the local
+# host. Depending on security needs, use of the -i and/or -s matches may be used
+# to further restrict where traffic comes from; this can be useful if you wish
+# to open ssh for LAN clients only but disallow external (Internet-sourced)
+# connections.
+
+# Accepting ping (icmp-echo-request) can be nice for diagnostic purposes.
+# However, it also lets probes discover this host is alive.
+# This sample accepts them within a certain rate limit:
+
+# -A INPUT -p icmp --icmp-type ping -m limit --limit 5/second
+
+# Examples for opening service-specific ports:
+
+# -A INPUT -p tcp --dport 22 -j ACCEPT
+# -A INPUT -p tcp -m multiport --dports 80,443 -j ACCEPT
+COMMIT
