@@ -21,13 +21,16 @@
 # This rule performs SNAT (via MASQUERADE) suitable for use with an RFC1918 LAN
 # behind the router. This rule may be omitted when using public IP space for the
 # internal LAN.
+
 -A POSTROUTING -o if_wan -j MASQUERADE
 
 # These samples show how to do DNAT into your LAN, aka port-forwarding:
-#-A PREROUTING -i if_wan -p tcp --dport 80 -j DNAT --to 192.168.7.101
-#-A PREROUTING -i if_wan -p tcp --dport 443 -j DNAT --to 192.168.7.101:9090
-#-A PREROUTING -i if_wan -p udp --dport 123 -j DNAT --to 192.168.7.200
-#-A PREROUTING -i if_wan -p ipv6 -j DNAT --to 192.168.7.50
+
+# -A PREROUTING -i if_wan -p tcp --dport 80 -j DNAT --to 192.168.7.101
+# -A PREROUTING -i if_wan -p tcp --dport 443 -j DNAT --to 192.168.7.101:9090
+# -A PREROUTING -i if_wan -p udp --dport 123 -j DNAT --to 192.168.7.200
+# -A PREROUTING -i if_wan -p ipv6 -j DNAT --to 192.168.7.50
+
 COMMIT
 
 *filter
@@ -36,8 +39,10 @@ COMMIT
 :OUTPUT ACCEPT
 -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 -A FORWARD -i if_lan -s 192.168.7/24 -o if_wan -j ACCEPT
+
 # This next rule allows any traffic that has been DNAT'd into the LAN:
 -A FORWARD -m conntrack --ctstate DNAT -j ACCEPT
+
 -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 -A INPUT -i lo+ -s 127/8 -j ACCEPT
 
@@ -46,5 +51,6 @@ COMMIT
 # to further restrict where traffic comes from; this can be useful if you wish
 # to open ssh for LAN clients only but disallow external (Internet-sourced)
 # connections.
+
 # -A INPUT -p tcp --dport 22 -j ACCEPT
 COMMIT
