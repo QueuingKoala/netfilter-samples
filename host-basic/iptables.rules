@@ -28,7 +28,7 @@
 # However, it also lets probes discover this host is alive.
 # This sample accepts them within a certain rate limit:
 
-# -A INPUT -p icmp --icmp-type ping -m limit --limit 5/second
+# -A INPUT -p icmp --icmp-type ping -m limit --limit 5/second -j ACCEPT
 
 # Examples for opening service-specific ports:
 
