@@ -1,0 +1,43 @@
+# A fairly basic single-host ruleset for IPv6
+
+# Do not use unless you understand this example as
+# modification for your usage may be required.
+
+# Note: in particular, no local ports are opened, including ssh.
+#   Add whatever remote-access you need to prevent lockouts if this
+#   is not a console-accessible box. You have been warned.
+
+# This ruleset is in ip6tables-save(8) syntax. This means you can run
+# this file as-is (or with your own modifications) through
+# ip6tables-restore(8) to load them.
+
+*filter
+:INPUT DROP
+:FORWARD DROP
+:OUTPUT ACCEPT
+:icmp_in
+-A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -i lo+ -j ACCEPT
+
+# ICMPv6 traffic is sent to its own chain to handle required traffic
+-A INPUT -p ipv6-icmp -j icmp_in
+
+# Accepting ping (icmp-echo-request) can be nice for diagnostic purposes.
+# However, it also lets probes discover this host is alive.
+# This sample accepts them within a certain rate limit:
+
+# -A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 128 -m limit --limit 5/second -j ACCEPT
+
+# ICMPv6 types 134-136 are used in NDP
+-A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 134 -j ACCEPT
+-A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 135 -j ACCEPT
+-A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 136 -j ACCEPT
+
+# ICMPv6 types 1-4 are useful even if not in an ESTABLISHED or RELATED state.
+# These are accepted as defined in RFC4890 and pose no special security risk.
+-A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 1 -j ACCEPT
+-A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 2 -j ACCEPT
+-A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 3 -j ACCEPT
+-A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 4 -j ACCEPT
+
+COMMIT
