@@ -1,0 +1,63 @@
+# A fairly basic and somewhat extensible router core ruleset for IPv6
+
+# Do not use unless you understand this example as
+# modification for your usage may be required.
+
+# Assumptions:
+#  * 2001:db8:1234:abcd::/64 is your LAN, connected to if_lan
+#  * if_wan is your uplink, with a dynamic public IP
+
+# Note: in particular, no local ports are opened, including ssh.
+#   Add whatever remote-access you need to prevent lockouts if this
+#   is not a console-accessible box. You have been warned.
+
+# Do not use unless you understand this example as
+# modification for your usage may be required.
+
+# Note: in particular, no local ports are opened, including ssh.
+#   Add whatever remote-access you need to prevent lockouts if this
+#   is not a console-accessible box. You have been warned.
+
+# This ruleset is in ip6tables-save(8) syntax. This means you can run
+# this file as-is (or with your own modifications) through
+# ip6tables-restore(8) to load them.
+
+*filter
+:INPUT DROP
+:FORWARD DROP
+:OUTPUT ACCEPT
+:icmp_in
+-A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -i lo+ -j ACCEPT
+
+# Samples to open local ports to this host are shown below.
+# It may be useful to add -s or -i to these to restrict traffic to sources on
+# the local LAN, for instance.
+
+# -A INPUT -p tcp --dport 22 -j ACCEPT
+# -A INPUT -p tcp -m multiport --dport 80,443 -j ACCEPT
+# -A INPUT -p udp -i if_lan --dport 123 -j ACCEPT
+
+# ICMPv6 traffic is sent to its own chain to handle required traffic
+-A INPUT -p ipv6-icmp -j icmp_in
+
+# Accepting ping (icmp-echo-request) can be nice for diagnostic purposes.
+# However, it also lets probes discover this host is alive.
+# This sample accepts them within a certain rate limit:
+
+# -A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 128 -m limit --limit 5/second -j ACCEPT
+
+# ICMPv6 types 134-136 are used in NDP, and type 133 is used for router-discovery
+-A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 133 -j ACCEPT
+-A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 134 -j ACCEPT
+-A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 135 -j ACCEPT
+-A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 136 -j ACCEPT
+
+# ICMPv6 types 1-4 are useful even if not in an ESTABLISHED or RELATED state.
+# These are accepted as defined in RFC4890 and pose no special security risk.
+-A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 1 -j ACCEPT
+-A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 2 -j ACCEPT
+-A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 3 -j ACCEPT
+-A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 4 -j ACCEPT
+
+COMMIT
