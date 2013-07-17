@@ -26,6 +26,7 @@
 :INPUT DROP
 :FORWARD DROP
 :OUTPUT ACCEPT
+:icmp_err
 :icmp_in
 -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 -A INPUT -i lo+ -j ACCEPT
@@ -41,6 +42,16 @@
 # ICMPv6 traffic is sent to its own chain to handle required traffic
 -A INPUT -p ipv6-icmp -j icmp_in
 
+# Traffic being forwarded across this router:
+
+-A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+# Allow the LAN to forward anywhere to reach upstream networks.
+# Multi-homed hosts may want to restrict this by -o (outbound interface) too.
+-A FORWARD -i if_lan -s 2001:db8:1234:abcd::/64 -j ACCEPT
+# ICMP errors should be forwarded back to LAN clients regardless of state as
+# defined in RFC4890; these won't be replied to, so there's no security issue.
+-A FORWARD -o if_lan -j icmp_err
+
 # Accepting ping (icmp-echo-request) can be nice for diagnostic purposes.
 # However, it also lets probes discover this host is alive.
 # This sample accepts them within a certain rate limit:
@@ -52,12 +63,14 @@
 -A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 134 -j ACCEPT
 -A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 135 -j ACCEPT
 -A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 136 -j ACCEPT
+# Pass required ICMP errors:
+-A icmp_in -j icmp_err
 
 # ICMPv6 types 1-4 are useful even if not in an ESTABLISHED or RELATED state.
 # These are accepted as defined in RFC4890 and pose no special security risk.
--A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 1 -j ACCEPT
--A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 2 -j ACCEPT
--A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 3 -j ACCEPT
--A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 4 -j ACCEPT
+-A icmp_err -p ipv6-icmp -m icmp6 --icmpv6-type 1 -j ACCEPT
+-A icmp_err -p ipv6-icmp -m icmp6 --icmpv6-type 2 -j ACCEPT
+-A icmp_err -p ipv6-icmp -m icmp6 --icmpv6-type 3 -j ACCEPT
+-A icmp_err -p ipv6-icmp -m icmp6 --icmpv6-type 4 -j ACCEPT
 
 COMMIT
