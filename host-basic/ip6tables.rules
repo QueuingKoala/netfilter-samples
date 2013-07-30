@@ -15,7 +15,7 @@
 :INPUT DROP
 :FORWARD DROP
 :OUTPUT ACCEPT
-:icmp_in
+:icmp_in -
 -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 -A INPUT -i lo+ -j ACCEPT
 
