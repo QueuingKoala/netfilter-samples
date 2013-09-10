@@ -26,7 +26,7 @@ $line
 :PREROUTING ACCEPT
 :OUTPUT ACCEPT"
 			[ "$line" = "*nat" ] && echo "
-:POSTROUTING"
+:POSTROUTING ACCEPT"
 			;;
 		*)
 			return
