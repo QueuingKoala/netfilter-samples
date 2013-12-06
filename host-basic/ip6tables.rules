@@ -17,7 +17,7 @@
 :OUTPUT ACCEPT
 :icmp_in -
 -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
--A INPUT -i lo+ -j ACCEPT
+-A INPUT -i lo -j ACCEPT
 
 # Samples to open local ports to this host are shown below.
 # It may be useful to add -s or -i to these to restrict traffic to sources on

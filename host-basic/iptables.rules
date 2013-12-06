@@ -16,7 +16,7 @@
 :FORWARD DROP
 :OUTPUT ACCEPT
 -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
--A INPUT -i lo+ -j ACCEPT
+-A INPUT -i lo -j ACCEPT
 
 # The following commented rules demonstrate how to open ports for the local
 # host. Depending on security needs, use of the -i and/or -s matches may be used
