@@ -36,7 +36,7 @@ where:
 Note about failsafe operation
 ---
 
-In order to completely fallback to the old ruleset, is is **required** that the
+In order to completely fallback to the old ruleset, it is **required** that the
 currently loaded ruleset have all the tables present that are in the new
 ruleset. If you don't, then any rules applied by the new ruleset will stay and
 *not* get reverted.
