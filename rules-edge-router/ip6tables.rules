@@ -4,19 +4,12 @@
 # modification for your usage may be required.
 
 # Assumptions:
-#  * 2001:db8:1234:abcd::/64 is your LAN, connected to if_lan
-#  * if_wan is your uplink, with a dynamic public IP
+#  * 2001:db8:1234:abcd::/64 is your LAN, connected to device if_lan
+#  * if_wan is your uplink device, with a dynamic public IP
 
 # Note: in particular, no local ports are opened, including ssh.
 #   Add whatever remote-access you need to prevent lockouts if this
-#   is not a console-accessible box. You have been warned.
-
-# Do not use unless you understand this example as
-# modification for your usage may be required.
-
-# Note: in particular, no local ports are opened, including ssh.
-#   Add whatever remote-access you need to prevent lockouts if this
-#   is not a console-accessible box. You have been warned.
+#   is not a console-accessible box. YOU HAVE BEEN WARNED.
 
 # This ruleset is in ip6tables-save(8) syntax. This means you can run
 # this file as-is (or with your own modifications) through
@@ -28,7 +21,16 @@
 :OUTPUT ACCEPT
 :icmp_err -
 :icmp_in -
+
+#*****
+# INPUT handles traffic arriving for this host
+#*****
+
+# This creates a statefully-aware firewall by accepting traffic that is related
+# to traffic this host initiated:
 -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+
+# Permit loopback traffic since many processes rely on this:
 -A INPUT -i lo -j ACCEPT
 
 # Samples to open local ports to this host are shown below.
@@ -42,15 +44,24 @@
 # ICMPv6 traffic is sent to its own chain to handle required traffic
 -A INPUT -p ipv6-icmp -j icmp_in
 
-# Traffic being forwarded across this router:
+#*****
+# FORWARD handles traffic being forwarded across this router:
+#*****
 
+# Allow return traffic related to that which internal clients initiated:
 -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+
 # Allow the LAN to forward anywhere to reach upstream networks.
 # Multi-homed hosts may want to restrict this by -o (outbound interface) too.
 -A FORWARD -i if_lan -s 2001:db8:1234:abcd::/64 -j ACCEPT
+
 # ICMP errors should be forwarded back to LAN clients regardless of state as
 # defined in RFC4890; these won't be replied to, so there's no security issue.
 -A FORWARD -o if_lan -j icmp_err
+
+#*****
+# ICMP chain for INPUT traffic (traffic to this host)
+#*****
 
 # Accepting ping (icmp-echo-request) can be nice for diagnostic purposes.
 # However, it also lets probes discover this host is alive.
@@ -63,8 +74,13 @@
 -A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 134 -j ACCEPT
 -A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 135 -j ACCEPT
 -A icmp_in -p ipv6-icmp -m icmp6 --icmpv6-type 136 -j ACCEPT
-# Pass required ICMP errors:
+
+# Allow required ICMP errors:
 -A icmp_in -j icmp_err
+
+#*****
+# ICMP chain for important error message types
+#*****
 
 # ICMPv6 types 1-4 are useful even if not in an ESTABLISHED or RELATED state.
 # These are accepted as defined in RFC4890 and pose no special security risk.
