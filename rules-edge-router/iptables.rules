@@ -55,6 +55,13 @@ COMMIT
 # This allows the downstream LAN to send to the Internet:
 -A FORWARD -i if_lan -s 192.168.7/24 -o if_wan -j ACCEPT
 
+# Some people might want anti-spoof protection for traffic arriving from the
+# uplink. Note that rp_filter kernel support does basically the same thing.
+# If enabled, this drops traffic from upstream with downstream destination
+# addressing:
+
+#-A FORWARD -i if_wan -o if_lan -s 192.168.7/24 -j DROP
+
 # This next rule allows any traffic that has been DNAT'd into the LAN:
 -A FORWARD -m conntrack --ctstate DNAT -j ACCEPT
 
