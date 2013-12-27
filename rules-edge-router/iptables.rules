@@ -12,11 +12,16 @@
 # this file as-is (or with your own modifications) through
 # iptables-restore(8) to load them.
 
+# Set up the nat table:
 *nat
 :PREROUTING ACCEPT
 :INPUT ACCEPT
 :OUTPUT ACCEPT
 :POSTROUTING ACCEPT
+
+# **********
+# NAT rules:
+# *****
 
 # This rule performs SNAT (via MASQUERADE) suitable for use with an RFC1918 LAN
 # behind the router. This rule may be omitted when using public IP space for the
@@ -31,12 +36,18 @@
 # -A PREROUTING -i if_wan -p udp --dport 123 -j DNAT --to 192.168.7.200
 # -A PREROUTING -i if_wan -p ipv6 -j DNAT --to 192.168.7.50
 
+# Commit the nat table:
 COMMIT
 
+# Set up the filter table:
 *filter
 :INPUT DROP
 :FORWARD DROP
 :OUTPUT ACCEPT
+
+# **********
+# Rules for forwarded traffic:
+# *****
 
 # This rule accepts stateful traffic flowing in either direction:
 -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
@@ -46,6 +57,10 @@ COMMIT
 
 # This next rule allows any traffic that has been DNAT'd into the LAN:
 -A FORWARD -m conntrack --ctstate DNAT -j ACCEPT
+
+# **********
+# Rules for traffic arriving for this host:
+# *****
 
 # This rule accepts stateful traffic to this host:
 -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
@@ -84,4 +99,5 @@ COMMIT
 # -A INPUT -i if_lan -s 192.168.7/24 -p tcp --dport 53 -j ACCEPT
 # -A INPUT -i if_lan -s 192.168.7/24 -p udp --dport 53 -j ACCEPT
 
+# Commit the filter table:
 COMMIT
