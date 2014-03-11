@@ -22,6 +22,12 @@ with more information.
    kernel-default for those tables. Note that restoring a "blank" ruleset is a
    cleaner solution, but that requires you have one ahead-of-time.
 
+Netfilter Ruleset BNF
+---------------------
+
+The `netfilter-ruleset-bnf` directory has a BNF description and documentation of
+the `iptables-restore` (also `iptables-save`) ruleset format.
+
 Ruleset Samples
 ---------------
 

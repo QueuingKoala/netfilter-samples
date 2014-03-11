@@ -1,0 +1,52 @@
+# iptables-restore BNF
+
+# This BNF is GPLv2 licensed, corresponding with the Netfilter project
+
+<ruleset>       ::= <table> [ <table> .. ]
+
+<table>         ::= <table-def> [ <chain-def> .. ] [ <rule> .. ] 'COMMIT' <EOL>
+<table-def>     ::= '*' <table-name> <EOL>
+<chain-def>     ::= ':' <chain-name> <WS> <chain-policy> [ <WS> <counters> ] <EOL>
+<rule>          ::= <command> <EOL>
+
+<table-name>    ::= 'filter' | 'mangle' | 'nat' | 'raw' | 'security'
+<chain-name>    ::= <chars>
+<chain-policy>  ::= <builtin-tgt> | '-'
+<counters>      ::= '[' <digits> ':' <digits> ']'
+
+<command>       ::= <add> | <delete> | <rename> | <flush> | <insert> | <new>
+                  | <policy-set> | <replace> | <clear-empty> | <zero-counter>
+<add>           ::= '-A' <WS> <chain-name> <match-actn>
+<delete>        ::= '-D' <WS> <chain-name> [ <rule-num> | <match-actn> ]
+<rename>        ::= '-E' <WS> <chain-name> <WS> <chain-name>
+<flush>         ::= '-F' [ <WS> <chain-name> ]
+<insert>        ::= '-I' <WS> <chain-name> [ <rule-num> ] <match-actn>
+<new>           ::= '-N' <WS> <chain-name>
+<policy-set>    ::= '-P' <WS> <chain-name> <WS> <chain-policy>
+<replace>       ::= '-R' <WS> <chain-name> <rule-num> <match-actn>
+<clear-empty>   ::= '-X' [ <WS> <chain-name> ]
+<zero-counter>  ::= '-Z' [ <WS> <chain-name> ]
+
+<match-actn>    ::= [ <WS> <match> ] [ <WS> <action> ]
+<match>         ::= [ '-m' <module> ] <match-syntax>
+<module>          # Reference iptables-extensions(8) for available modules
+<match-syntax>    # Reference iptables-extensions(8) for the match module options
+
+<action>        ::= ( '-j' | '-g' ) <WS> <target>
+<target>        ::= <chain-name> | <builtin-tgt> | <tgt-module>
+
+<builtin-tgt>   ::= 'ACCEPT' | 'DROP'
+<tgt-module>    ::= 'RETURN' | ( 'REJECT' | <tgt-modules> ) [ <tgt-syntax> ]
+<tgt-modules>     # Reference iptables-extensions(8) for available targets
+<tgt-syntax>      # Reference iptables-extensions(8) for the target module options
+
+<rule-num>      ::= <WS> <digits>
+
+<chars>         ::= <char> [ ( <char> | '-' ) .. ]
+<char>          ::= <alpha> | <digit> | '_'
+<alpha>           # Most characters the C-function isalpha() would return TRUE for
+
+<digits>        ::= <digit> [ <digit> .. ]
+<digit>         ::= '0' - '9'
+
+<WS>            ::= ( ' ' | <TAB> ) [ <WS> ]
