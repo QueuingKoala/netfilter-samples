@@ -93,3 +93,7 @@ Rules, or table commands
 Following the chain definitions, commands to apply to the table are given, each
 on 1 line. Frequently, the only command used is the `-A` command, but the full
 description of each command can be found in `iptables(8)`.
+
+Per-rule hitcounters are also optional. Unlike chain definitions, rule
+hitcounters precede the rule definition; as above, these are ignored unless `-c`
+is passed to `iptables-restore`.

@@ -7,7 +7,7 @@
 <table>         ::= <table-def> [ <chain-def> .. ] [ <rule> .. ] 'COMMIT' <EOL>
 <table-def>     ::= '*' <table-name> <EOL>
 <chain-def>     ::= ':' <chain-name> <WS> <chain-policy> [ <WS> <counters> ] <EOL>
-<rule>          ::= <command> <EOL>
+<rule>          ::= [ <counters> <WS> ] <command> <EOL>
 
 <table-name>    ::= 'filter' | 'mangle' | 'nat' | 'raw' | 'security'
 <chain-name>    ::= <chars>
