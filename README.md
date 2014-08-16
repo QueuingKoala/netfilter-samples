@@ -31,9 +31,9 @@ the `iptables-restore` (also `iptables-save`) ruleset format.
 Ruleset Samples
 ---------------
 
-Please do not use this examples without reading through the ruleset and
+Please do not use these examples without reading through the ruleset and
 understanding the logic behind it; many of the intended features are included as
-comments to show usage; you (the reader) should make sure the completed ruleset
+comments to show usage. You (the reader) should make sure the completed ruleset
 operates as required for your particular environment.
 
 Note that this is not intended as a "guide" to using netfilter. These are
