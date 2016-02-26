@@ -39,7 +39,7 @@
 
 # -A INPUT -p tcp --dport 22 -j ACCEPT
 # -A INPUT -p tcp -m multiport --dport 80,443 -j ACCEPT
-# -A INPUT -p udp -i if_lan --dport 123 -j ACCEPT
+# -A INPUT -p udp -m rpfilter -s 2001:db8:1234:abcd::/64 --dport 123 -j ACCEPT
 
 # ICMPv6 traffic is sent to its own chain to handle required traffic
 -A INPUT -p ipv6-icmp -j icmp_in
@@ -53,7 +53,7 @@
 
 # Allow the LAN to forward anywhere to reach upstream networks.
 # Multi-homed hosts may want to restrict this by -o (outbound interface) too.
--A FORWARD -i if_lan -s 2001:db8:1234:abcd::/64 -j ACCEPT
+-A FORWARD -m rpfilter -s 2001:db8:1234:abcd::/64 -j ACCEPT
 
 # ICMP errors should be forwarded back to LAN clients regardless of state as
 # defined in RFC4890; these won't be replied to, so there's no security issue.
